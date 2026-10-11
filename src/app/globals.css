@@ -1,26 +1,393 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Monochrome, image-led, generous whitespace. Colour comes from photography,
+   not from the interface.
+   --------------------------------------------------------------------------- */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:
+    var(--font-brand-sans), ui-sans-serif, system-ui, "Helvetica Neue", Arial,
+    sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme static {
+  /* Colour: surfaces */
+  --color-background: #ffffff;
+  --color-surface: #f4f3f1; /* product and media tiles */
+  --color-surface-strong: #e8e6e2;
+  --color-inverse: #0a0a0a; /* footer, dark editorial bands */
+
+  /* Colour: text */
+  --color-foreground: #0a0a0a;
+  --color-muted: #6b6b6b;
+  --color-on-inverse: #ffffff;
+  --color-on-inverse-muted: #a8a8a8;
+
+  /* Colour: lines */
+  --color-border: #e4e4e4;
+  --color-border-strong: #0a0a0a;
+  --color-border-inverse: #2e2e2e;
+
+  /* Colour: state (the only non-neutral hues in the interface) */
+  --color-danger: #b3261e;
+  --color-success: #1f6f43;
+  --color-scrim: rgb(0 0 0 / 0.4); /* over imagery, behind drawers */
+
+  /* Type scale: fluid display sizes, small fixed UI sizes */
+  --text-display: clamp(2.5rem, 1.5rem + 5vw, 6rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 400;
+
+  --text-headline: clamp(1.75rem, 1.25rem + 2.2vw, 3rem);
+  --text-headline--line-height: 1.1;
+  --text-headline--letter-spacing: -0.01em;
+  --text-headline--font-weight: 400;
+
+  --text-title: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-title--line-height: 1.25;
+  --text-title--font-weight: 400;
+
+  --text-body-lg: 1rem;
+  --text-body-lg--line-height: 1.6;
+
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.12em;
+  --text-label--font-weight: 500;
+
+  --tracking-label: 0.12em;
+
+  /* Spacing: semantic steps on top of Tailwind's 0.25rem scale */
+  --spacing-gutter: clamp(1rem, 4vw, 4rem); /* page side padding */
+  --spacing-section: clamp(4rem, 10vw, 9rem); /* between page sections */
+  --spacing-section-sm: clamp(2.5rem, 6vw, 5rem);
+  --spacing-header: 4rem;
+  --spacing-control: 3rem; /* button and input height */
+  --spacing-control-sm: 2.5rem;
+  --spacing-grid-gap: 0.125rem; /* hairline gap between media tiles */
+
+  /* Containers */
+  --container-page: 120rem;
+  --container-content: 80rem;
+  --container-text: 40rem;
+
+  /* Breakpoints: Tailwind defaults plus one for very wide screens */
+  --breakpoint-3xl: 120rem;
+
+  /* Shape: near-square corners throughout */
+  --radius-control: 0.125rem;
+
+  /* Media ratios */
+  --aspect-product: 4 / 5;
+  --aspect-portrait: 3 / 4;
+  --aspect-editorial: 16 / 9;
+
+  /* Motion */
+  --ease-brand: cubic-bezier(0.2, 0, 0, 1);
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  *,
+  ::before,
+  ::after,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: var(--spacing-header);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------------------------------------------------------------------------
+   Typography
+   Sizes come from the text-* tokens above (text-display, text-body, ...).
+   --------------------------------------------------------------------------- */
+
+/* Small uppercase label: nav items, section kickers, button text */
+@utility eyebrow {
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: var(--text-label--font-weight);
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout primitives
+   --------------------------------------------------------------------------- */
+
+/* Full-width page shell with fluid side gutters */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+/* Narrower shell for forms, account pages, long-form content */
+@utility container-content {
+  width: 100%;
+  max-width: calc(var(--container-content) + 2 * var(--spacing-gutter));
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+/* Reading measure */
+@utility container-text {
+  width: 100%;
+  max-width: calc(var(--container-text) + 2 * var(--spacing-gutter));
+  margin-inline: auto;
+  padding-inline: var(--spacing-gutter);
+}
+
+/* Break a child out of a container's gutters to the viewport edge */
+@utility bleed {
+  margin-inline: calc(var(--spacing-gutter) * -1);
+}
+
+/* Vertical rhythm between page sections */
+@utility section {
+  padding-block: var(--spacing-section);
+}
+
+@utility section-sm {
+  padding-block: var(--spacing-section-sm);
+}
+
+/* Vertical stack; override the gap with --stack-gap or a gap-* utility */
+@utility stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap, 1rem);
+}
+
+/* Product listing: 2 columns on phones, 3 on tablets, 4 on desktop.
+   Tiles sit almost edge to edge; rows are separated by text, not boxes. */
+@utility product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--spacing-grid-gap);
+  row-gap: 2rem;
+
+  @media (width >= theme(--breakpoint-md)) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 3rem;
+  }
+
+  @media (width >= theme(--breakpoint-lg)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Editorial pairing: stacked on phones, two equal halves from tablet up */
+@utility split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--spacing-grid-gap);
+
+  @media (width >= theme(--breakpoint-md)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Image or video frame. Pair with an aspect-* utility
+   (aspect-product, aspect-portrait, aspect-editorial). */
+@utility media {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface);
+
+  & > :is(img, video, picture) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Dark band: footer, editorial sections */
+@utility surface-inverse {
+  background-color: var(--color-inverse);
+  color: var(--color-on-inverse);
+  --color-border: var(--color-border-inverse);
+  --color-muted: var(--color-on-inverse-muted);
+}
+
+/* Hairline divider */
+@utility rule {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+   `btn` alone is the solid primary button. Variant and size classes only set
+   custom properties, so class order never matters.
+   --------------------------------------------------------------------------- */
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--btn-height, var(--spacing-control));
+  padding-inline: var(--btn-px, 2rem);
+  border: 1px solid var(--btn-border, var(--color-foreground));
+  border-radius: var(--radius-control);
+  background-color: var(--btn-bg, var(--color-foreground));
+  color: var(--btn-fg, var(--color-background));
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: var(--text-label--font-weight);
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition-property: background-color, border-color, color, opacity;
+  transition-duration: var(--default-transition-duration);
+  transition-timing-function: var(--default-transition-timing-function);
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--btn-hover-bg, var(--color-background));
+      color: var(--btn-hover-fg, var(--color-foreground));
+      border-color: var(--btn-hover-border, var(--color-foreground));
+    }
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+}
+
+/* Outlined secondary action */
+@utility btn-outline {
+  --btn-bg: transparent;
+  --btn-fg: var(--color-foreground);
+  --btn-border: var(--color-foreground);
+  --btn-hover-bg: var(--color-foreground);
+  --btn-hover-fg: var(--color-background);
+  --btn-hover-border: var(--color-foreground);
+}
+
+/* Light button for use over imagery and dark bands */
+@utility btn-inverse {
+  --btn-bg: var(--color-on-inverse);
+  --btn-fg: var(--color-inverse);
+  --btn-border: var(--color-on-inverse);
+  --btn-hover-bg: transparent;
+  --btn-hover-fg: var(--color-on-inverse);
+  --btn-hover-border: var(--color-on-inverse);
+}
+
+/* Borderless, for tertiary actions and icon buttons */
+@utility btn-ghost {
+  --btn-bg: transparent;
+  --btn-fg: currentColor;
+  --btn-border: transparent;
+  --btn-hover-bg: var(--color-surface);
+  --btn-hover-fg: currentColor;
+  --btn-hover-border: transparent;
+}
+
+@utility btn-sm {
+  --btn-height: var(--spacing-control-sm);
+  --btn-px: 1.25rem;
+}
+
+@utility btn-block {
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Links
+   Links inherit colour; the underline carries the affordance.
+   --------------------------------------------------------------------------- */
+
+/* Inline text link: underlined at rest, underline fades on hover */
+@utility link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: currentColor;
+  transition: text-decoration-color var(--default-transition-duration)
+    var(--default-transition-timing-function);
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: transparent;
+    }
+  }
+}
+
+/* Navigation and footer link: plain at rest, underline appears on hover
+   and marks the current page */
+@utility link-quiet {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--default-transition-duration)
+    var(--default-transition-timing-function);
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  &[aria-current="page"] {
+    text-decoration-color: currentColor;
+  }
 }
